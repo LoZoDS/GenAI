@@ -57,9 +57,9 @@ Key parameters at the top of `main.py`:
 
 ## 🧰 Dependencies
 
-- `selenium` — browser automation for UNICEF scraping
-- `beautifulsoup4` — HTML parsing and text extraction
-- `pymupdf` (`fitz`) — CDC PDF text extraction
-- `langchain-text-splitters` — recursive text chunking
+- `selenium`
+- `beautifulsoup4` 
+- `pymupdf` (`fitz`) 
+- `langchain-text-splitters`
 
 ---
