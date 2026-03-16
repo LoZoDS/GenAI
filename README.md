@@ -27,6 +27,25 @@ Key parameters at the top of `main.py`:
 
 ---
 
+## 🗂️ Project Structure
+
+```
+.
+├── child_development_indexing_pipeline.py                          # Main pipeline script
+├── cdc-milestone-checklists-ltsae-english-508.pdf                  # CDC Data Source
+├── cdev_knowledge_base.json                                        # Output knowledge base (generated)
+├── your-babys-developmental-milestones-2-months.txt                # Scraped UNICEF pages (generated)
+├── your-babys-developmental-milestones-4-months.txt
+├── your-babys-developmental-milestones-6-months.txt
+├── your-babys-developmental-milestones-9-months.txt
+├── your-toddlers-developmental-milestones-1-year.txt
+├── your-toddlers-developmental-milestones-2-years.txt
+├── your-toddlers-developmental-milestones-18-months.txt
+└── README.md
+```
+
+---
+
 ## 📚 Data Sources
 
 | Source | Ages Covered | Format |
