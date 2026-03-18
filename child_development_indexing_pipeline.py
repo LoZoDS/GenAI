@@ -3,15 +3,16 @@ import time
 import re
 import json
 import re
-import fitz
+from pathlib import Path
+import pymupdf  # Change 1: pdf library name is changed from fitz to pymupdf
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from bs4 import BeautifulSoup
 
 
 # == PART 1: Gather documents. Set parameters == #
 
-# a) Set working directory (Saved files) and output path
-FILES_DIR = "/Users/mcharur1/PycharmProjects/GenAI/GenAI" # CHANGE THIS TO YOUR WORKING DIRECTORY!!!
+BASE_DIR = Path(__file__).resolve().parent  # Change 2: relative path instead of absolute
+FILES_DIR = str(BASE_DIR)
 OUTPUT_PATH = FILES_DIR + "/cdev_knowledge_base.json"
 
 # b) Get CDC's pdf path
@@ -243,7 +244,7 @@ def ingest_cdc(pathpdf: str) -> list[dict]:
     return:
         list of chunk dictionaries for milestone stages (i.e. 5 years)"""
     all_chunks = []
-    doc = fitz.open(pathpdf)
+    doc = pymupdf.open(pathpdf)
 
     for age_label, first_page, last_page in CDC_PAGES:
         print(f"Processing CDC PDF [{age_label}] (pages {first_page} - {last_page}")
