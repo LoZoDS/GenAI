@@ -100,28 +100,145 @@ print("Step 5 done.")
 
 print("Step 6: building RAG chain...")
 rag_chain = (
-    {
-        "context": retriever | format_docs,
-        "question": RunnablePassthrough()
-    }
-    | prompt
+    prompt
     | llm
     | StrOutputParser()
 )
 print("Step 6 done.")
 
 
-print("Step 7: preparing query...")
-query = "How often should a newborn be fed?"
-print("Query:", query)
-print("Step 7 done.")
+def is_medical_question(query: str) -> bool:
+    medical_keywords = [
+        "diagnose", "diagnosis", "treatment", "medicine", "medication",
+        "dose", "fever", "rash", "vomiting", "infection", "emergency",
+        "serious", "urgent", "hospital", "dehydration", "sick", "ill"
+    ]
+    query_lower = query.lower()
+    return any(word in query_lower for word in medical_keywords)
 
 
-print("Step 8: invoking RAG chain...")
-answer = rag_chain.invoke(query)
-print("Step 8 done.")
+def add_disclaimer(answer: str, query: str) -> str:
+    disclaimer = (
+        "\n\nNote: This chatbot provides general information only and is not a medical professional. "
+        "For diagnosis, treatment, or urgent concerns, consult a qualified healthcare provider."
+    )
+
+    if is_medical_question(query):
+        return answer + disclaimer
+
+    return answer
 
 
-print("Step 9: final answer:")
-print(answer)
+def enforce_safety(answer: str) -> str:
+    if not answer:
+        return answer
 
+    unsafe_phrases = [
+        # "your child has",
+        # "your baby has",
+        # "this means your child has",
+        # "this means your baby has",
+        "the diagnosis is",
+        "i diagnose",
+        "you should give medication",
+        "administer",
+        "prescribe",
+        "definitely has",
+        "certainly has"
+    ]
+
+    answer_lower = answer.lower()
+
+    for phrase in unsafe_phrases:
+        if phrase in answer_lower:
+            return (
+                "I can only provide general information from the available context. "
+                "I cannot diagnose or provide medical advice. "
+                "Please consult a qualified healthcare professional."
+            )
+
+    return answer
+
+
+def fallback_response() -> str:
+    return (
+        "I could not find enough relevant information in the knowledge base to answer that safely. "
+        "Please rephrase your question or consult a qualified healthcare professional."
+    )
+
+
+def postprocess_answer(answer: str, query: str) -> str:
+    if answer is None:
+        print("postprocess_answer: answer is None")
+        return fallback_response()
+
+    answer = answer.strip()
+
+    if answer == "":
+        print("postprocess_answer: answer is empty string")
+        return fallback_response()
+
+    answer = enforce_safety(answer)
+    answer = add_disclaimer(answer, query)
+
+    return answer
+
+
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+
+
+def retrieve_context(query: str, retriever):
+    docs = retriever.invoke(query)
+    return docs, format_docs(docs)
+
+
+def ask_chatbot(query: str, retriever, rag_chain) -> str:
+    print("Retrieving documents...")
+    docs, context = retrieve_context(query, retriever)
+
+    print(f"Retrieved {len(docs)} documents.")
+
+    if len(docs) == 0:
+        print("postprocess_answer: no relevant documents found")
+        return fallback_response()
+
+    print("Generating answer...")
+    raw_answer = rag_chain.invoke({
+        "context": context,
+        "question": query
+    })
+
+    print("Raw answer:", raw_answer, "\n\n")
+
+    print("Post-processing answer...")
+    final_answer = postprocess_answer(raw_answer, query)
+
+    return final_answer
+
+
+# -----------------------------
+# Simple chat interface
+# -----------------------------
+def chat_loop(retriever, rag_chain):
+    print("Early Childhood Chatbot")
+    print("Type 'exit' to quit.\n")
+
+    while True:
+        query = input("You: ").strip()
+
+        if query.lower() == "exit":
+            print("Bot: Goodbye.")
+            break
+
+        if query == "":
+            print("Bot: Please enter a question.")
+            continue
+
+        answer = ask_chatbot(query, retriever, rag_chain)
+        print("Bot:", answer)
+        print()
+
+# Run
+chat_loop(retriever, rag_chain)
