@@ -1,0 +1,34 @@
+# requirements-personal.txt
+# My personal environment for GenAI_FS26
+# Python 3.11.9
+#
+# Install with:
+#   pip install -r /path/to/this/file
+
+# ── Web scraping ───────────────────────────────────────────────────
+selenium>=4.20.0,<5.0.0
+beautifulsoup4>=4.12.0,<5.0.0
+
+# ── PDF parsing ────────────────────────────────────────────────────
+pymupdf>=1.24.0,<2.0.0
+
+# ── LangChain ──────────────────────────────────────────────────────
+langchain-core>=0.2.0,<0.4.0
+langchain-text-splitters>=0.2.0,<0.4.0
+langchain-huggingface>=0.1.0,<0.2.0
+langchain-chroma>=0.1.0,<0.2.0
+langchain-community>=0.2.0,<0.4.0
+
+# ── Vector store ───────────────────────────────────────────────────
+chromadb>=0.5.0,<0.6.0
+
+# ── HuggingFace / ML stack (pinned to work together on Python 3.11) ─
+torch>=2.2.0,<2.5.0
+tokenizers>=0.15.0,<0.22.0
+transformers>=4.40.0,<4.46.0
+accelerate>=0.30.0,<0.35.0
+sentence-transformers>=3.0.0,<3.2.0
+huggingface-hub>=0.23.0,<0.27.0
+
+# ── Utilities ──────────────────────────────────────────────────────
+numpy>=1.26.0,<2.1.0
