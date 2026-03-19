@@ -241,4 +241,5 @@ def chat_loop(retriever, rag_chain):
         print()
 
 # Run
-chat_loop(retriever, rag_chain)
+if __name__ == "__main__":
+    chat_loop(retriever, rag_chain)
