@@ -16,7 +16,7 @@ docs = [
     for item in data
 ]
 
-# Load HuggingFace embedding model (no API key needed)
+# Load HuggingFace embedding model 
 embeddings = HuggingFaceEmbeddings(
     model_name="sentence-transformers/all-MiniLM-L6-v2"
 )

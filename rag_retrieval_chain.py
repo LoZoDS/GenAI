@@ -22,7 +22,8 @@ vectorstore = Chroma(
 
 # Create a retriever from the vector store
 retriever = vectorstore.as_retriever(
-    search_kwargs={"k": 3}  
+    search_type="similarity",
+    search_kwargs={"k": 5}
 )
 
 # Define a natural language query
@@ -45,9 +46,13 @@ print("Step 1: importing libraries Done")
 print("Step 2: creating Hugging Face pipeline...")
 hf_pipeline = pipeline(
     "text-generation",
-    model="Qwen/Qwen2.5-0.5B-Instruct",
+    # model="Qwen/Qwen2.5-0.5B-Instruct",
+    # model="microsoft/Phi-3-mini-4k-instruct",
+    model="Qwen/Qwen2.5-3B-Instruct",
     max_new_tokens=128,
-    temperature=0.1
+    temperature=0.1,
+    device="mps",
+    return_full_text=False,
 )
 
 # Remove inherited/default max_length if present
@@ -69,7 +74,9 @@ You are a helpful assistant specialized in early childhood development.
 RULES:
 - Answer only using the provided context.
 - Do not use outside knowledge.
-- If the answer is not in the context, say exactly:
+- If the answer is directly stated, answer it.
+- If the context contains related information, provide a general answer based on it.
+- If there is no useful information, say exactly:
   "I do not know based on the provided information."
 - Keep answers clear, short, and user-friendly.
 - Do not diagnose.
@@ -192,7 +199,42 @@ def format_docs(docs):
 def retrieve_context(query: str, retriever):
     docs = retriever.invoke(query)
     return docs, format_docs(docs)
+def clean_answer(raw_answer: str) -> str:
+    if not raw_answer:
+        return ""
 
+    raw_answer = raw_answer.strip()
+
+    # Remove instruction leakage
+    stop_phrases = [
+        "Stop",
+        "(A)",
+        "(B)",
+        "Answer from context",
+        "Choose",
+        "RULES:",
+    ]
+
+    for phrase in stop_phrases:
+        if phrase in raw_answer:
+            raw_answer = raw_answer.split(phrase)[0].strip()
+
+    # Handle fallback mixing
+    fallback = "I do not know based on the provided information."
+    if fallback in raw_answer:
+        parts = raw_answer.split(fallback)
+
+        if len(parts) > 1 and len(parts[1].strip()) > 20:
+            return parts[1].strip()
+
+        if len(parts) > 1 and len(parts[1].strip()) > 0:
+            return parts[1].strip()
+
+        return fallback
+
+    # Keep only first 2–3 sentences
+    sentences = raw_answer.split(". ")
+    return ". ".join(sentences[:3]).strip()
 
 def ask_chatbot(query: str, retriever, rag_chain) -> str:
     print("Retrieving documents...")
@@ -213,7 +255,10 @@ def ask_chatbot(query: str, retriever, rag_chain) -> str:
     print("Raw answer:", raw_answer, "\n\n")
 
     print("Post-processing answer...")
-    final_answer = postprocess_answer(raw_answer, query)
+    cleaned = clean_answer(raw_answer)
+    final_answer = postprocess_answer(cleaned, query)
+
+    #final_answer = postprocess_answer(raw_answer, query)
 
     return final_answer
 
