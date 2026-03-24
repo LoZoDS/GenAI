@@ -6,7 +6,6 @@ from transformers import pipeline
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 
 
 # Initialize the embedding model
@@ -49,8 +48,8 @@ hf_pipeline = pipeline(
     # model="Qwen/Qwen2.5-0.5B-Instruct",
     # model="microsoft/Phi-3-mini-4k-instruct",
     model="Qwen/Qwen2.5-3B-Instruct",
-    max_new_tokens=128,
-    temperature=0.1,
+    max_new_tokens=200,
+    temperature=0.2,
     device="mps",
     return_full_text=False,
 )
@@ -72,13 +71,14 @@ prompt = ChatPromptTemplate.from_template("""
 You are a helpful assistant specialized in early childhood development.
 
 RULES:
-- Answer only using the provided context.
+- Answer using only the provided context.
 - Do not use outside knowledge.
 - If the answer is directly stated, answer it.
 - If the context contains related information, provide a general answer based on it.
 - If there is no useful information, say exactly:
   "I do not know based on the provided information."
-- Keep answers clear, short, and user-friendly.
+- Keep the answer to a maximum of 4 sentences.
+- Do not add extra sentences or continue the conversation. 
 - Do not diagnose.
 - Do not provide medical advice.
 - Do not recommend treatment, medication, or emergency action as a professional instruction.
@@ -190,60 +190,61 @@ def postprocess_answer(answer: str, query: str) -> str:
 
     return answer
 
-
-def format_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
-
-
-
 def retrieve_context(query: str, retriever):
     docs = retriever.invoke(query)
     return docs, format_docs(docs)
+
 def clean_answer(raw_answer: str) -> str:
     if not raw_answer:
         return ""
 
-    raw_answer = raw_answer.strip()
+    text = raw_answer.strip()
 
-    # Remove instruction leakage
+    if "Assistant:" in text:
+        text = text.split("Assistant:")[-1].strip()
+
+    if "Answer:" in text:
+        text = text.split("Answer:")[-1].strip()
+
     stop_phrases = [
+        "If you have any other questions",
+        "If you need further assistance",
+        "feel free to ask",
+        "I'm here to help",
+        "I’m here to help",
+        "Please let me know",
         "Stop",
-        "(A)",
-        "(B)",
-        "Answer from context",
-        "Choose",
         "RULES:",
     ]
-
     for phrase in stop_phrases:
-        if phrase in raw_answer:
-            raw_answer = raw_answer.split(phrase)[0].strip()
+        if phrase in text:
+            text = text.split(phrase)[0].strip()
 
-    # Handle fallback mixing
     fallback = "I do not know based on the provided information."
-    if fallback in raw_answer:
-        parts = raw_answer.split(fallback)
-
+    if fallback in text and text != fallback:
+        parts = text.split(fallback, 1)
         if len(parts) > 1 and len(parts[1].strip()) > 20:
-            return parts[1].strip()
+            text = parts[1].strip()
+        else:
+            text = fallback
 
-        if len(parts) > 1 and len(parts[1].strip()) > 0:
-            return parts[1].strip()
+    sentences = text.split(". ")
+    text = ". ".join(sentences[:4]).strip()
 
-        return fallback
+    if text.endswith("I do not know based on the"):
+        text = text.split("I do not know")[0].strip()
 
-    # Keep only first 2–3 sentences
-    sentences = raw_answer.split(". ")
-    return ". ".join(sentences[:3]).strip()
+    if text and not text.endswith(".") and "." in text:
+        text = text[:text.rfind(".") + 1]
+
+    return text
 
 def ask_chatbot(query: str, retriever, rag_chain) -> str:
     print("Retrieving documents...")
     docs, context = retrieve_context(query, retriever)
-
     print(f"Retrieved {len(docs)} documents.")
 
     if len(docs) == 0:
-        print("postprocess_answer: no relevant documents found")
         return fallback_response()
 
     print("Generating answer...")
@@ -252,13 +253,14 @@ def ask_chatbot(query: str, retriever, rag_chain) -> str:
         "question": query
     })
 
-    print("Raw answer:", raw_answer, "\n\n")
-
-    print("Post-processing answer...")
     cleaned = clean_answer(raw_answer)
     final_answer = postprocess_answer(cleaned, query)
 
-    #final_answer = postprocess_answer(raw_answer, query)
+    sentences = final_answer.split(". ")
+    final_answer = ". ".join(sentences[:4]).strip()
+
+    if final_answer and not final_answer.endswith(".") and "." in final_answer:
+        final_answer = final_answer[:final_answer.rfind(".") + 1]
 
     return final_answer
 
