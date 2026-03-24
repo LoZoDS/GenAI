@@ -4,7 +4,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 
 # Load the knowledge base JSON file
-with open("cdev_knowledge_base.json", "r") as f:
+with open("sources/cdev_knowledge_base.json", "r") as f:
     data = json.load(f)
 
 # Convert each chunk into a LangChain Document object
