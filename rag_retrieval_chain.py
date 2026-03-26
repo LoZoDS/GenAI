@@ -46,8 +46,8 @@ print("Step 2: creating Hugging Face pipeline...")
 hf_pipeline = pipeline(
     "text-generation",
     # model="Qwen/Qwen2.5-0.5B-Instruct",
-    # model="microsoft/Phi-3-mini-4k-instruct",
-    model="Qwen/Qwen2.5-3B-Instruct",
+    model="microsoft/Phi-3-mini-4k-instruct",
+    # model="Qwen/Qwen2.5-3B-Instruct",
     max_new_tokens=200,
     temperature=0.2,
     device="mps",
