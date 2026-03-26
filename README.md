@@ -61,5 +61,51 @@ Key parameters at the top of `main.py`:
 - `beautifulsoup4` 
 - `pymupdf` (`fitz`) 
 - `langchain-text-splitters`
+---
+
+## 🚀 Running the Chatbot
+
+The chatbot can be run locally in two steps: first the vector database must be created, and then the chat interface can be started.
+
+### 1. Install dependencies
+
+Make sure all required Python packages are installed:
+
+py -m pip install -r requirements.txt
+
+If needed, install additional packages used in the chatbot interface and RAG pipeline:
+
+py -m pip install streamlit langchain-huggingface langchain-chroma langchain-core langchain transformers sentence-transformers chromadb
+
+### 2. Build the vector database
+
+Before running the chatbot, the knowledge base must be indexed into the local Chroma vector database:
+py rag_indexing.py
+
+This reads the cdev_knowledge_base.json file, generates embeddings, and stores them in the chroma_db folder.
+
+### 3. Test the backend (optional)
+check whether the retrieval and response pipeline works correctly, run
+py test_chat_service.py
+This sends a sample question through the chatbot backend and prints the answer, sources, and status in the terminal.
+
+### 4. Start the chatbot UI
+Start the chatbot UI
+py -m streamlit run app.py
+
+After that, open the local URL shown in the terminal, usually:
+http://localhost:8501
 
 ---
+## 💬 Chatbot Features
+The chatbot interface includes:
+
+- free-text questions about early childhood development
+- suggested prompt buttons for common example questions
+- a “Start new chat” function
+- chat renaming for easier conversation management
+- retrieved source display for each answer
+- fallback responses for sensitive, diagnostic, urgent, or out-of-scope questions
+---
+## ⚠️ Disclaimer
+This chatbot provides general information about early childhood development based on the available knowledge base. It does not diagnose developmental conditions and does not replace professional medical or developmental assessment.
