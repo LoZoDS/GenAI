@@ -81,27 +81,41 @@ The chatbot can be run locally in two steps: first the vector database must be c
 
 Make sure all required Python packages are installed:
 
-py -m pip install -r requirements.txt
+```bash
+py -m pip install -r sources/requirements.txt
+```
 
 If needed, install additional packages used in the chatbot interface and RAG pipeline:
 
+```bash
 py -m pip install streamlit langchain-huggingface langchain-chroma langchain-core langchain transformers sentence-transformers chromadb
+```
 
 ### 2. Build the vector database
 
 Before running the chatbot, the knowledge base must be indexed into the local Chroma vector database:
+
+```bash
 py rag_indexing.py
+```
 
 This reads the cdev_knowledge_base.json file, generates embeddings, and stores them in the chroma_db folder.
 
 ### 3. Test the backend (optional)
 check whether the retrieval and response pipeline works correctly, run
+
+```bash
 py test_chat_service.py
+```
+
 This sends a sample question through the chatbot backend and prints the answer, sources, and status in the terminal.
 
 ### 4. Start the chatbot UI
 Start the chatbot UI
+
+```python
 py -m streamlit run app.py
+```
 
 After that, open the local URL shown in the terminal, usually:
 http://localhost:8501
