@@ -31,16 +31,26 @@ Key parameters at the top of `main.py`:
 
 ```
 .
-├── child_development_indexing_pipeline.py                          # Main pipeline script
-├── cdc-milestone-checklists-ltsae-english-508.pdf                  # CDC Data Source
-├── cdev_knowledge_base.json                                        # Output knowledge base (generated)
-├── your-babys-developmental-milestones-2-months.txt                # Scraped UNICEF pages (generated)
-├── your-babys-developmental-milestones-4-months.txt
-├── your-babys-developmental-milestones-6-months.txt
-├── your-babys-developmental-milestones-9-months.txt
-├── your-toddlers-developmental-milestones-1-year.txt
-├── your-toddlers-developmental-milestones-2-years.txt
-├── your-toddlers-developmental-milestones-18-months.txt
+├── app.py                                  # Streamlit chat UI
+├── chat_service.py                         # RAG chain service
+├── child_development_indexing_pipeline.py  # Main pipeline script
+├── cdc-milestone-checklists-ltsae-english-508.pdf  # CDC Data Source
+├── cdev_knowledge_base.json               # Output knowledge base (generated)
+├── prompts.py                             # Prompt templates
+├── rag_indexing.py                        # Embedding pipeline
+├── rag_retrieval_chain.py                 # Retrieval chain
+├── RAGAS_evaluation.py                    # Evaluation script
+├── requirements.txt                       # Dependencies
+├── safety.py                              # Safety filters
+├── test_chat_service.py                   # Tests
+├── sources/                               # Scraped UNICEF pages (generated)
+│   ├── your-babys-developmental-milestones-2-months.txt
+│   ├── your-babys-developmental-milestones-4-months.txt
+│   ├── your-babys-developmental-milestones-6-months.txt
+│   ├── your-babys-developmental-milestones-9-months.txt
+│   ├── your-toddlers-developmental-milestones-1-year.txt
+│   ├── your-toddlers-developmental-milestones-18-months.txt
+│   └── your-toddlers-developmental-milestones-2-years.txt
 └── README.md
 ```
 

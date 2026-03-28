@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 # == PART 1: Gather documents. Set parameters == #
 
 BASE_DIR = Path(__file__).resolve().parent  # Change 2: relative path instead of absolute
-FILES_DIR = str(BASE_DIR)
+FILES_DIR = str(BASE_DIR) + "/sources"
 OUTPUT_PATH = FILES_DIR + "/cdev_knowledge_base.json"
 
 # b) Get CDC's pdf path
@@ -88,8 +88,8 @@ CDC_PAGES = [
 ]
 
 # Chunking parameters for knowlege base
-CHUNK_SIZE    = 500  # This is the maximum number of characters per chunk
-CHUNK_OVERLAP = 100  # Overlapping characters with neighbouring chunks
+CHUNK_SIZE    = 300  # This is the maximum number of characters per chunk
+CHUNK_OVERLAP = 80  # Overlapping characters with neighbouring chunks
 
 
 # == Part 2: Clean data == #
