@@ -20,15 +20,16 @@ vectorstore = Chroma(
 
 # 3. Create retriever
 retriever = vectorstore.as_retriever(
-    search_kwargs={"k": 3}
+    search_kwargs={"k": 5}
 )
 
 # 4. Load language model
 hf_pipeline = pipeline(
     "text-generation",
-    model="Qwen/Qwen2.5-0.5B-Instruct",
-    max_new_tokens=160,
-    temperature=0.1,
+    model="microsoft/Phi-3-mini-4k-instruct",
+    # model="Qwen/Qwen2.5-3B-Instruct",
+    max_new_tokens=200,
+    temperature=0.2,
     return_full_text=False
 )
 
