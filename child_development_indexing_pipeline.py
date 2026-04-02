@@ -88,8 +88,8 @@ CDC_PAGES = [
 ]
 
 # Chunking parameters for knowlege base
-CHUNK_SIZE    = 300  # This is the maximum number of characters per chunk
-CHUNK_OVERLAP = 80  # Overlapping characters with neighbouring chunks
+CHUNK_SIZE    = 500  # This is the maximum number of characters per chunk
+CHUNK_OVERLAP = 100  # Overlapping characters with neighbouring chunks
 
 
 # == Part 2: Clean data == #
